@@ -91,5 +91,7 @@ public class ECFG {
             }
         }
         for(Block block : blocks) block.transToAST();
+        for(Block block : blocks) System.out.println(block.size());
+
     }
 }
