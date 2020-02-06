@@ -8,16 +8,23 @@ public class Main {
         PackManager.v().getPack("jtp")
                 .add(new Transform("jtp.trans", new ProgramTransformer()));
         String work_dir = System.getProperty("user.dir");
-        String classpath = work_dir + File.separator + "jce.jar"
+        StringBuilder classpath = new StringBuilder(work_dir + File.separator + "jce.jar"
                 + File.pathSeparator + work_dir + File.separator + "rt.jar"
-                + File.pathSeparator + work_dir + File.separator + "junit-4.3.jar"
-                + File.pathSeparator + (args[0] + File.separator + "classes")
-                + File.pathSeparator + (args[0] + File.separator + "test-classes")
-                + File.pathSeparator + (args[0] + File.separator + "tests");
+                + File.pathSeparator + work_dir + File.separator + "junit-4.3.jar");
+        File third_dir = new File(args[0] + File.separator + "lib");
+        File[] files = third_dir.listFiles();
+        for(File jarFile: files){
+            if(jarFile.isFile() && jarFile.getName().endsWith(".jar")){
+                classpath.append(File.pathSeparator)
+                        .append(third_dir.getPath())
+                        .append(File.separator)
+                        .append(jarFile.getName());
+            }
+        }
         soot.Main.main(new String[] {
             "-w",
             "-p", "jtp.trans", "enabled:true",
-            "--soot-class-path", classpath, args[1]
+            "--soot-class-path", classpath.toString(), args[1]
         });
 
     }

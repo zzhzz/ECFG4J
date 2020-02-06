@@ -10,11 +10,20 @@ public class ECFG {
     private Stmt entry, exit;
 
     private List<Block> blocks = new ArrayList<>();
-    ECFG(){
+    private Set<Triplet<Integer, Integer, Integer>> edgeSet = new HashSet<>();
+    private Block ENTRY, EXIT;
+
+    String method_name;
+    ECFG(String method_name){
         entry = new Stmt(0, null);
         exit = new Stmt(1, null);
+        ENTRY = new Block(0);
+        EXIT = new Block(1);
         stmts.add(entry);
         stmts.add(exit);
+        blocks.add(ENTRY);
+        blocks.add(EXIT);
+        this.method_name = method_name;
     }
 
     void linkEntry(Integer x){
@@ -44,14 +53,43 @@ public class ECFG {
         return edges.toString();
     }
 
+    private void compress(int u, ArrayList[] g, Block block, Integer[] index){
+        if(u < 2) return;
+        ArrayList<Integer> adjList = g[u];
+        index[u] = block.ID;
+        block.addUnit(stmts.get(u).getUnit());
+        if(adjList.size() == 1){
+            if(index[adjList.get(0)] == -1)
+                compress(adjList.get(0), g, block, index);
+        }
+    }
+
     void simplify(){
         ArrayList[] g = new ArrayList[stmts.size()];
-        Arrays.fill(g, new ArrayList<Integer>());
-        boolean[] visit = new boolean[stmts.size()];
+        Integer[] index = new Integer[stmts.size()];
+        for(int i = 0; i < stmts.size(); i++){
+            g[i] = new ArrayList<Integer>();
+        }
+        Arrays.fill(index, -1);
+        index[0] = 0;
+        index[1] = 1;
         for(Triplet<Integer, Integer, Integer> edge : edges){
             Integer u = edge.getValue0(), v = edge.getValue1(), t = edge.getValue2();
             g[u].add(v);
         }
-
+        for(int i = 2; i < stmts.size(); i++){
+            if(index[i] == -1){
+                Block block = new Block(blocks.size());
+                compress(i, g, block, index);
+                blocks.add(block);
+            }
+        }
+        for(Triplet<Integer, Integer, Integer> edge : edges){
+            Integer u = edge.getValue0(), v = edge.getValue1(), t = edge.getValue2();
+            if (!index[u].equals(index[v])){
+                edgeSet.add(Triplet.with(index[u], index[v], t));
+            }
+        }
+        for(Block block : blocks) block.transToAST();
     }
 }
