@@ -20,11 +20,20 @@ public class ASTNode {
     void addAll(Collection<? extends ASTNode> list) {
         childrens.addAll(list);
     }
+
     public String toString(){
         return nodeLable + " children { " + childrens.stream()
                 .map(ASTNode::toString)
                 .collect(Collectors.joining(";"))
                 + "}";
+    }
+
+    List<ASTNode> getChildrens(){
+        return childrens;
+    }
+
+    String getLabel(){
+        return nodeLable;
     }
 
 }

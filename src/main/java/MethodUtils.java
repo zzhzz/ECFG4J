@@ -31,11 +31,8 @@ public class MethodUtils {
             x = ecfg.FindUnit(u);
             if(u instanceof IfStmt){
                 t = 1;
-            } else if(u instanceof SwitchStmt){
+            } else if(u instanceof SwitchStmt) {
                 t = 6;
-            } else if(succs.size() > 2){
-                System.out.println(u);
-                System.err.println("Unexpected");
             }
             for(Unit succU : succs){
                 int type = t;
@@ -47,7 +44,9 @@ public class MethodUtils {
                     }
                 }
                 ecfg.appendEdge(x, y, type);
-                t++;
+                if(type == t) {
+                    t++;
+                }
             }
         }
         ecfg.simplify();

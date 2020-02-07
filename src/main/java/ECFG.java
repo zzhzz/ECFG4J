@@ -1,5 +1,6 @@
 import java.util.*;
 
+import com.google.gson.annotations.Expose;
 import org.javatuples.Triplet;
 import soot.Unit;
 
@@ -9,11 +10,18 @@ public class ECFG {
     private Map<Unit, Integer> stmtMap = new HashMap<>();
     private Stmt entry, exit;
 
+    @Expose
     private List<Block> blocks = new ArrayList<>();
+
+    @Expose
     private Set<Triplet<Integer, Integer, Integer>> edgeSet = new HashSet<>();
+
+    @Expose
     private Block ENTRY, EXIT;
 
+    @Expose
     String method_name;
+
     ECFG(String method_name){
         entry = new Stmt(0, null);
         exit = new Stmt(1, null);
@@ -91,7 +99,5 @@ public class ECFG {
             }
         }
         for(Block block : blocks) block.transToAST();
-        for(Block block : blocks) System.out.println(block.size());
-
     }
 }

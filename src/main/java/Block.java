@@ -1,4 +1,6 @@
+import com.google.gson.annotations.Expose;
 import fj.Hash;
+import org.javatuples.Pair;
 import polyglot.ast.NewArray;
 import soot.*;
 import soot.jimple.*;
@@ -12,9 +14,18 @@ import java.util.stream.Collectors;
 
 public class Block {
     private List<Unit> unitList = new ArrayList<>();
+
+    @Expose
     private Set<Value> def = new HashSet<>(), use = new HashSet<>();
+    @Expose
     private Set<String> callees = new HashSet<>();
+    @Expose
+    private List<String> nodes = new ArrayList<>();
+    @Expose
+    private List<Pair<Integer, Integer>> edges = new ArrayList<>();
     private ASTNode root;
+
+    @Expose
     Integer ID;
 
     Block(Integer ID){
@@ -34,12 +45,15 @@ public class Block {
         SootMethod method = invokeExpr.getMethod();
         SootClass claz = method.getDeclaringClass();
         if(claz.getPackageName().equals(ProgramTransformer.packageName)){
-            System.out.println(method.getName());
             if(!ExtendCFGList.IsMethodExist(method.getName())){
                 if(method.hasActiveBody()) {
                     MethodUtils.process_method(method.getActiveBody());
                 } else {
-                    MethodUtils.process_method(method.retrieveActiveBody());
+                    try {
+                        MethodUtils.process_method(method.retrieveActiveBody());
+                    } catch (RuntimeException e) {
+                        return;
+                    }
                 }
             }
             callees.add(method.getName());
@@ -74,8 +88,10 @@ public class Block {
             typeNode = new ASTNode("Float");
         } else if(type instanceof DoubleType) {
             typeNode = new ASTNode("Double");
-        } else if(type instanceof ByteType){
+        } else if(type instanceof ByteType) {
             typeNode = new ASTNode("Byte");
+        } else if(type instanceof LongType){
+            typeNode = new ASTNode("Long");
         } else {
             System.err.println("process_type unhandled class " + type.getClass());
         }
@@ -166,12 +182,23 @@ public class Block {
             valueNode = new ASTNode("ThisRef");
             ThisRef ref = (ThisRef) value;
             valueNode.addChild(process_type(ref.getType()));
-        } else if(value instanceof InstanceFieldRef){
+        } else if(value instanceof InstanceFieldRef) {
             valueNode = new ASTNode("InstanceFieldRef");
             InstanceFieldRef ref = (InstanceFieldRef) value;
             valueNode.addChild(process_type(ref.getType()));
             valueNode.addChild(process_value(ref.getBase()));
             valueNode.addChild(process_type(ref.getField().getType()));
+        } else if(value instanceof StaticFieldRef){
+            valueNode = new ASTNode("StaticFieldRef");
+            StaticFieldRef ref = (StaticFieldRef) value;
+            valueNode.addChild(process_type(ref.getType()));
+            valueNode.addChild(process_type(ref.getField().getType()));
+        } else if(value instanceof InstanceOfExpr){
+            valueNode = new ASTNode("InstanceOfExpr");
+            InstanceOfExpr expr = (InstanceOfExpr) value;
+            valueNode.addChild(process_type(expr.getType()));
+            valueNode.addChild(process_value(expr.getOp()));
+            valueNode.addChild(process_type(expr.getCheckType()));
         } else {
             System.err.println("process_value Not handle " + value.getClass());
         }
@@ -216,7 +243,7 @@ public class Block {
             Value op = stmt.getOp();
             ASTNode opNode = process_value(op);
             unitNode.addChild(opNode);
-        } else if(u instanceof SwitchStmt){
+        } else if(u instanceof SwitchStmt) {
             unitNode = new ASTNode("SwitchStmt");
             SwitchStmt stmt = (SwitchStmt) u;
             Value op = stmt.getKey();
@@ -238,14 +265,34 @@ public class Block {
         return unitNode;
     }
 
+    private void bfs(){
+        Queue<Pair<Integer, ASTNode>> que = new LinkedList<>();
+        que.offer(Pair.with(-1, root));
+        while(!que.isEmpty()){
+            Pair<Integer, ASTNode> state = que.poll();
+            Integer parent = state.getValue0();
+            ASTNode node = state.getValue1();
+            Integer node_id = nodes.size();
+            if(parent >= 0){
+                edges.add(Pair.with(parent, node_id));
+            }
+            nodes.add(node.getLabel());
+            List<ASTNode> childrens = node.getChildrens();
+            for(ASTNode child : childrens){
+                que.offer(Pair.with(node_id, child));
+            }
+        }
+    }
+
     void transToAST(){
         for(Unit u: unitList){
             ASTNode node = process_unit(u);
             root.addChild(node);
         }
+        bfs();
     }
 
     public String toString(){
-        return "Block " + ID + " content \n" + root.toString();
+        return "Block " + ID + " content \n" + nodes.toString();
     }
 }
