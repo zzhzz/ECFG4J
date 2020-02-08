@@ -28,9 +28,15 @@ public class Block {
     @Expose
     Integer ID;
 
+    private String packageName;
+
     Block(Integer ID){
         this.ID = ID;
         root = new ASTNode("CompoundStmt");
+    }
+
+    void setPackageName(String name){
+        packageName = name;
     }
 
     void addUnit(Unit u){
@@ -44,7 +50,7 @@ public class Block {
     private void process_invoke(InvokeExpr invokeExpr){
         SootMethod method = invokeExpr.getMethod();
         SootClass claz = method.getDeclaringClass();
-        if(claz.getPackageName().equals(ProgramTransformer.packageName)){
+        if(claz.getPackageName().equals(packageName)){
             if(!ExtendCFGList.IsMethodExist(method.getName())){
                 if(method.hasActiveBody()) {
                     MethodUtils.process_method(method.getActiveBody());
@@ -84,8 +90,10 @@ public class Block {
             typeNode.addChild(new ASTNode("[]"));
         } else if(type instanceof CharType){
             typeNode = new ASTNode("Char");
-        } else if(type instanceof FloatType){
+        } else if(type instanceof FloatType) {
             typeNode = new ASTNode("Float");
+        } else if(type instanceof ShortType){
+            typeNode = new ASTNode("Short");
         } else if(type instanceof DoubleType) {
             typeNode = new ASTNode("Double");
         } else if(type instanceof ByteType) {
@@ -240,15 +248,19 @@ public class Block {
         } else if(u instanceof ThrowStmt) {
             unitNode = new ASTNode("ThrowStmt");
             ThrowStmt stmt = (ThrowStmt) u;
-            Value op = stmt.getOp();
-            ASTNode opNode = process_value(op);
-            unitNode.addChild(opNode);
+            unitNode.addChild(process_value(stmt.getOp()));
         } else if(u instanceof SwitchStmt) {
             unitNode = new ASTNode("SwitchStmt");
             SwitchStmt stmt = (SwitchStmt) u;
-            Value op = stmt.getKey();
-            ASTNode opNode = process_value(op);
-            unitNode.addChild(opNode);
+            unitNode.addChild(process_value(stmt.getKey()));
+        } else if(u instanceof EnterMonitorStmt) {
+            unitNode = new ASTNode("EnterMonitorStmt");
+            EnterMonitorStmt stmt = (EnterMonitorStmt) u;
+            unitNode.addChild(process_value(stmt.getOp()));
+        } else if(u instanceof ExitMonitorStmt){
+            unitNode = new ASTNode("ExitMonitorStmt");
+            ExitMonitorStmt stmt = (ExitMonitorStmt) u;
+            unitNode.addChild(process_value(stmt.getOp()));
         } else {
             System.err.println(u.getClass() + " Not handle in process_unit");
         }

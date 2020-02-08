@@ -9,6 +9,7 @@ public class ECFG {
     private List<Stmt> stmts = new ArrayList<>();
     private Map<Unit, Integer> stmtMap = new HashMap<>();
     private Stmt entry, exit;
+    private String packageName;
 
     @Expose
     private List<Block> blocks = new ArrayList<>();
@@ -22,7 +23,7 @@ public class ECFG {
     @Expose
     String method_name;
 
-    ECFG(String method_name){
+    ECFG(String packageName, String method_name){
         entry = new Stmt(0, null);
         exit = new Stmt(1, null);
         ENTRY = new Block(0);
@@ -32,6 +33,7 @@ public class ECFG {
         blocks.add(ENTRY);
         blocks.add(EXIT);
         this.method_name = method_name;
+        this.packageName = packageName;
     }
 
     void linkEntry(Integer x){
@@ -88,6 +90,7 @@ public class ECFG {
         for(int i = 2; i < stmts.size(); i++){
             if(index[i] == -1){
                 Block block = new Block(blocks.size());
+                block.setPackageName(packageName);
                 compress(i, g, block, index);
                 blocks.add(block);
             }

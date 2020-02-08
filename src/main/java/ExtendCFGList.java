@@ -20,6 +20,10 @@ public class ExtendCFGList {
         return singleton;
     }
 
+    void registerMethod(String method_name){
+        names.add(method_name);
+    }
+
     static void appendECFG(ECFG ecfg){
         ExtendCFGList.getInstance().ecfgList.add(ecfg);
         ExtendCFGList.getInstance().names.add(ecfg.method_name);

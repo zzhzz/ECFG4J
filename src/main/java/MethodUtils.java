@@ -12,8 +12,11 @@ import java.util.List;
 
 public class MethodUtils {
     static void process_method(Body body){
+        String packageName = body.getMethod().getDeclaringClass().getPackageName();
+        String method_name = body.getMethod().getName();
         UnitGraph graph = new ExceptionalUnitGraph(body);
-        ECFG ecfg = new ECFG(body.getMethod().getName());
+        ECFG ecfg = new ECFG(packageName, method_name);
+        ExtendCFGList.getInstance().registerMethod(method_name);
         for (Unit u : graph) {
             ecfg.appendUnit(u);
         }
@@ -46,6 +49,11 @@ public class MethodUtils {
                 ecfg.appendEdge(x, y, type);
                 if(type == t) {
                     t++;
+                    if(t == 5){
+                        System.err.println("Unexpected");
+                        System.err.println(u);
+                        System.err.println(succs);
+                    }
                 }
             }
         }
