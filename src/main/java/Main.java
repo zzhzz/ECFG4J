@@ -5,7 +5,6 @@ import org.javatuples.Pair;
 import org.javatuples.Triplet;
 import soot.*;
 
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
