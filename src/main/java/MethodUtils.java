@@ -23,6 +23,7 @@ public class MethodUtils {
         List<Unit> heads = graph.getHeads();
         for(Unit u : heads){
             ecfg.linkEntry(ecfg.FindUnit(u));
+
         }
         List<Unit> tails = graph.getTails();
         for(Unit u : tails){

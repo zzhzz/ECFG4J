@@ -29,6 +29,10 @@ public class ExtendCFGList {
         ExtendCFGList.getInstance().names.add(ecfg.method_name);
     }
 
+    int size(){
+        return ecfgList.size();
+    }
+
     void clear(){
         ecfgList.clear();
         names.clear();
