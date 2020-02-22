@@ -17,7 +17,7 @@ public class Block {
     private List<Unit> unitList = new ArrayList<>();
 
     @Expose
-    private Set<Value> def = new HashSet<>(), use = new HashSet<>();
+    private Set<String> def = new HashSet<>(), use = new HashSet<>();
     @Expose
     private Set<String> callees = new HashSet<>();
     @Expose
@@ -286,10 +286,12 @@ public class Block {
         def.addAll(defList.stream()
                 .map(ValueBox::getValue)
                 .filter(s -> s instanceof Local || s instanceof Ref)
+                .map(Value::toString)
                 .collect(Collectors.toList()));
         use.addAll(useList.stream()
                 .map(ValueBox::getValue)
                 .filter(s -> s instanceof Local || s instanceof Ref)
+                .map(Value::toString)
                 .collect(Collectors.toList()));
         return unitNode;
     }
