@@ -11,12 +11,13 @@ import soot.toolkits.graph.UnitGraph;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Block {
     private List<Unit> unitList = new ArrayList<>();
 
     @Expose
-    private Set<Value> def = new HashSet<>(), use = new HashSet<>();
+    private Set<String> def = new HashSet<>(), use = new HashSet<>();
     @Expose
     private Set<String> callees = new HashSet<>();
     @Expose
@@ -149,6 +150,8 @@ public class Block {
             valueNode = new ASTNode("NewArray");
             NewArrayExpr expr = (NewArrayExpr) value;
             valueNode.addChild(process_type(expr.getType()));
+            valueNode.addChild(process_value(expr.getSize()));
+
         } else if(value instanceof CaughtExceptionRef) {
             valueNode = new ASTNode("CaughtException");
             CaughtExceptionRef ref = (CaughtExceptionRef) value;
@@ -201,12 +204,24 @@ public class Block {
             StaticFieldRef ref = (StaticFieldRef) value;
             valueNode.addChild(process_type(ref.getType()));
             valueNode.addChild(process_type(ref.getField().getType()));
-        } else if(value instanceof InstanceOfExpr){
+        } else if(value instanceof InstanceOfExpr) {
             valueNode = new ASTNode("InstanceOfExpr");
             InstanceOfExpr expr = (InstanceOfExpr) value;
             valueNode.addChild(process_type(expr.getType()));
             valueNode.addChild(process_value(expr.getOp()));
             valueNode.addChild(process_type(expr.getCheckType()));
+        } else if(value instanceof NewMultiArrayExpr){
+            valueNode = new ASTNode("NewMultiArrayExpr");
+            NewMultiArrayExpr expr = (NewMultiArrayExpr) value;
+            valueNode.addChild(process_type(expr.getType()));
+
+            valueNode.addAll(
+                IntStream.range(0, expr.getSizeCount()).boxed()
+                        .map(expr::getSize)
+                        .map(this::process_value)
+                        .collect(Collectors.toList())
+            );
+
         } else {
             System.err.println("process_value Not handle " + value.getClass());
         }
@@ -257,10 +272,12 @@ public class Block {
             unitNode = new ASTNode("EnterMonitorStmt");
             EnterMonitorStmt stmt = (EnterMonitorStmt) u;
             unitNode.addChild(process_value(stmt.getOp()));
-        } else if(u instanceof ExitMonitorStmt){
+        } else if(u instanceof ExitMonitorStmt) {
             unitNode = new ASTNode("ExitMonitorStmt");
             ExitMonitorStmt stmt = (ExitMonitorStmt) u;
             unitNode.addChild(process_value(stmt.getOp()));
+        } else if(u instanceof NopStmt){
+            unitNode = new ASTNode("NopStmt");
         } else {
             System.err.println(u.getClass() + " Not handle in process_unit");
         }
@@ -269,10 +286,12 @@ public class Block {
         def.addAll(defList.stream()
                 .map(ValueBox::getValue)
                 .filter(s -> s instanceof Local || s instanceof Ref)
+                .map(Value::toString)
                 .collect(Collectors.toList()));
         use.addAll(useList.stream()
                 .map(ValueBox::getValue)
                 .filter(s -> s instanceof Local || s instanceof Ref)
+                .map(Value::toString)
                 .collect(Collectors.toList()));
         return unitNode;
     }

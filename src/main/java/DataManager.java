@@ -48,6 +48,7 @@ public class DataManager {
             parser.close();
             reader.close();
         }
+        System.out.println(classes);
     }
 
     List<String> getClassList(){
