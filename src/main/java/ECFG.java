@@ -9,10 +9,10 @@ public class ECFG {
     private List<Stmt> stmts = new ArrayList<>();
     private Map<Unit, Integer> stmtMap = new HashMap<>();
     private Stmt entry, exit;
-    private String packageName;
+    private String packageName, class_name;
 
     @Expose
-    private List<Block> blocks = new ArrayList<>();
+    public List<Block> blocks = new ArrayList<>();
 
     @Expose
     private Set<Triplet<Integer, Integer, Integer>> edgeSet = new HashSet<>();
@@ -23,7 +23,7 @@ public class ECFG {
     @Expose
     String method_name;
 
-    ECFG(String packageName, String method_name){
+    ECFG(String packageName, String class_name, String method_name){
         entry = new Stmt(0, null);
         exit = new Stmt(1, null);
         ENTRY = new Block(0);
@@ -32,6 +32,7 @@ public class ECFG {
         stmts.add(exit);
         blocks.add(ENTRY);
         blocks.add(EXIT);
+        this.class_name = class_name;
         this.method_name = method_name;
         this.packageName = packageName;
     }
@@ -61,6 +62,10 @@ public class ECFG {
 
     public String toString(){
         return edges.toString();
+    }
+
+    public String getClassName(){
+        return class_name;
     }
 
     private void compress(int u, ArrayList[] g, Block block, Integer[] index){

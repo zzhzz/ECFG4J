@@ -42,34 +42,27 @@ public class ExtendCFGList {
         return ExtendCFGList.getInstance().names.contains(method_name);
     }
 
-    String extract(String label){
+    String extract(){
         GsonBuilder builder = new GsonBuilder();
         builder.excludeFieldsWithoutExposeAnnotation();
-        builder.registerTypeAdapter(Pair.class, new JsonSerializer<Pair>() {
-            @Override
-            public JsonElement serialize(Pair pair, Type type, JsonSerializationContext arg){
-                JsonArray array = new JsonArray();
-                array.add(arg.serialize(pair.getValue0()));
-                array.add(arg.serialize(pair.getValue1()));
-                return array;
-            }
+        builder.registerTypeAdapter(Pair.class, (JsonSerializer<Pair>) (pair, type, arg) -> {
+            JsonArray array = new JsonArray();
+            array.add(arg.serialize(pair.getValue0()));
+            array.add(arg.serialize(pair.getValue1()));
+            return array;
         });
 
-        builder.registerTypeAdapter(Triplet.class, new JsonSerializer<Triplet>() {
-            @Override
-            public JsonElement serialize(Triplet triplet, Type type, JsonSerializationContext arg){
-                JsonArray array = new JsonArray();
-                array.add(arg.serialize(triplet.getValue0()));
-                array.add(arg.serialize(triplet.getValue1()));
-                array.add(arg.serialize(triplet.getValue2()));
-                return array;
-            }
+        builder.registerTypeAdapter(Triplet.class, (JsonSerializer<Triplet>) (triplet, type, arg) -> {
+            JsonArray array = new JsonArray();
+            array.add(arg.serialize(triplet.getValue0()));
+            array.add(arg.serialize(triplet.getValue1()));
+            array.add(arg.serialize(triplet.getValue2()));
+            return array;
         });
 
         Map<String, Object> item = new HashMap<>();
 
         item.put("data", ecfgList);
-        item.put("label", label);
 
         Gson gson = builder.create();
         return gson.toJson(item);

@@ -14,8 +14,9 @@ public class MethodUtils {
     static void process_method(Body body){
         String packageName = body.getMethod().getDeclaringClass().getPackageName();
         String method_name = body.getMethod().getName();
+        String class_name = body.getMethod().getDeclaringClass().getName();
         UnitGraph graph = new ExceptionalUnitGraph(body);
-        ECFG ecfg = new ECFG(packageName, method_name);
+        ECFG ecfg = new ECFG(packageName, class_name, method_name);
         ExtendCFGList.getInstance().registerMethod(method_name);
         for (Unit u : graph) {
             ecfg.appendUnit(u);

@@ -10,12 +10,12 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
 import java.util.*;
+import java.lang.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Block {
     private List<Unit> unitList = new ArrayList<>();
-
     @Expose
     private Set<String> def = new HashSet<>(), use = new HashSet<>();
     @Expose
@@ -24,15 +24,22 @@ public class Block {
     private List<String> nodes = new ArrayList<>();
     @Expose
     private List<Pair<Integer, Integer>> edges = new ArrayList<>();
-    private ASTNode root;
+    @Expose
+    private int begin, end;
+
+    @Expose
+    private int label;
 
     @Expose
     Integer ID;
 
+    private ASTNode root;
     private String packageName;
 
     Block(Integer ID){
         this.ID = ID;
+        this.begin = 1000000000;
+        this.end = -1;
         root = new ASTNode("CompoundStmt");
     }
 
@@ -42,6 +49,8 @@ public class Block {
 
     void addUnit(Unit u){
         unitList.add(u);
+        begin = Math.min(begin, u.getJavaSourceStartLineNumber());
+        end = Math.max(end, u.getJavaSourceStartLineNumber());
     }
 
     Integer size(){
