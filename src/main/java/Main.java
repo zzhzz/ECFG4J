@@ -7,13 +7,13 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         System.err.println("Transform Java class file into extend-cfg");
-        if (args.length < 4){
+        if (args.length < 3){
             System.out.println("Usage: java -jar ECFG4J.jar <project_path> <class_name> <method_name>");
             System.exit(1);
         }
 
-        String project_dir = args[1], className = args[2], methodName = args[3];
-
+        String project_dir = args[0], className = args[1], methodName = args[2];
+        
         String work_dir = System.getProperty("user.dir");
         String output_dir_path = work_dir + File.separator + "json_datas";
 
@@ -25,7 +25,9 @@ public class Main {
                 System.getenv("JAVA_HOME") + File.separator + "lib" + File.separator + "tools.jar"
                 + File.pathSeparator + System.getenv("JAVA_HOME") + File.separator + "jre/lib" + File.separator + "rt.jar"
                 + File.pathSeparator + System.getenv("JAVA_HOME") + File.separator + "jre/lib" + File.separator + "jce.jar"
-                + File.pathSeparator + project_dir
+                + File.pathSeparator + project_dir + File.separator + "classes"
+                + File.pathSeparator + project_dir + File.separator + "tests"
+                + File.pathSeparator + work_dir + File.separator + "junit-4.10.jar"
         );
 
 
@@ -46,6 +48,7 @@ public class Main {
         Args.add("--soot-class-path");
         Args.add(classpath.toString());
         Args.addAll(classes);
+        System.out.println(classes);
         PackManager.v().getPack("wjtp")
                 .add(new Transform("wjtp.trans", new ProgramTransformer()));
         soot.Main.main(Args.toArray(new String[Args.size()]));
