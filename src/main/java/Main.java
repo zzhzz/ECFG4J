@@ -1,7 +1,10 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
+import jdk.internal.util.xml.impl.Input;
 import soot.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 
@@ -12,14 +15,24 @@ public class Main {
             System.out.println("Usage: java -jar ECFG4J.jar <output_path> <project_path>");
             System.exit(1);
         }
+        InputStream stream = new FileInputStream(new File("method_list.json"));
+        JsonReader reader = new JsonReader(new InputStreamReader(stream));
+        Gson gson = new GsonBuilder().create();
+        reader.beginArray();
+        List<String> methodList = new ArrayList<>();
+        while(reader.hasNext()){
+            methodList.addAll(gson.fromJson(reader, List.class));
+        }
+        reader.close();
+
 
         String work_dir = System.getProperty("user.dir");
         String output_dir_path = args[0];
 
         DataManager manager = DataManager.createManager(output_dir_path);
         String class_path = args[1];
-        for(int i = 2; i < args.length; i++){
-            String[] items = args[i].split("::");
+        for(String item: methodList){
+            String[] items = item.split("::");
             String clazName = items[0], methodName = items[1];
             manager.addOne(clazName, methodName); 
         }
