@@ -26,6 +26,9 @@ public class ProgramTransformer extends SceneTransformer {
             Iterator<SootMethod> sootMethodIterator = claz.methodIterator();
             while (sootMethodIterator.hasNext()) {
                 SootMethod method = sootMethodIterator.next();
+                if (!method.getName().equals(method_name)){
+                    continue;
+                }
                 if (method.hasActiveBody()) {
                     MethodUtils.process_method(method.getActiveBody());
                 } else if (method.isConcrete()) {
