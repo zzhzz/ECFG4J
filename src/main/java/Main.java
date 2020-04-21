@@ -1,7 +1,6 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import jdk.internal.util.xml.impl.Input;
 import soot.*;
 
 import java.io.*;
@@ -21,7 +20,7 @@ public class Main {
         reader.beginArray();
         List<String> methodList = new ArrayList<>();
         while(reader.hasNext()){
-            methodList.addAll(gson.fromJson(reader, List.class));
+            methodList.add(gson.fromJson(reader, String.class));
         }
         reader.close();
 
@@ -48,13 +47,14 @@ public class Main {
         List<String> Args = new ArrayList<>();
         System.out.println(manager.size());
         List<String> classes = manager.getClassList();
+        Args.add("--keep-line-number");
         Args.add("-w");
         Args.add("-p");
         Args.add("wjtp.trans");
         Args.add("enabled:true");
         Args.add("-p");
-        Args.add("cg.cha");
-        Args.add("apponly:true");
+        Args.add("cg.spark");
+        Args.add("enabled:true");
         Args.add("-allow-phantom-refs");
         Args.add("--soot-class-path");
         Args.add(classpath.toString());

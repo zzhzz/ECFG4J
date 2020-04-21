@@ -18,19 +18,21 @@ def run(project, bug_id):
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
     cmd = f'defects4j checkout -p {project} -v {bug_id}b -w {dir_name}'
-    # build_cmd = 'mvn test-compile'
+    #build_cmd = 'mvn test-compile'
     build_cmd = 'defects4j compile'
     info_cmd = f'defects4j info -p {project} -b {bug_id} > info.txt'
     logger.info(cmd)
     res = os.system(cmd)
     if res != 0:
-        quit(1)
+        logging.error('checkout failed!')
+        reset(dir_name)
+        return
     os.chdir(dir_name)
     res = os.system(build_cmd)
     if res != 0:
         logging.error('Build failed!')
         reset(dir_name)
-        return ;
+        return
     os.system(info_cmd)
     black_list = []
     start = False
@@ -44,7 +46,7 @@ def run(project, bug_id):
                 method_list = list_str.split(',')
         method_list = list(map(lambda x: x.replace('\n', ''), method_list))
         method_list = list(filter(lambda x: len(x) > 0 and x not in black_list and x.find('::') != -1, method_list))
-    cp = ['.', '../junit-4.10.jar']
+    cp = ['.', '../junit-4.10.jar'] #, 'target/classes', 'target/test-classes']
     cmd = 'defects4j export -p dir.bin.classes -o dir.class'
     os.system(cmd)
     cmd = 'defects4j export -p dir.bin.tests -o dir.test'
@@ -77,7 +79,7 @@ def run(project, bug_id):
         json.dump(method_list, fh)
     if len(method_list) > 0:
         output_dir = f'/home/zzhzz/Documents/ECFG4J/json_datas/{project}/{bug_id}'
-        cmd = f'/home/zzhzz/.conda/envs/java1.8/bin/java -jar ../ECFG4J.jar {output_dir} {pathes} {claz_list} 2> err'
+        cmd = f'/home/zzhzz/.conda/envs/java1.8/bin/java -jar ../ECFG4J.jar {output_dir} {pathes} 2> err'
         r = os.system(cmd)
         print(len(method_list))
         if r != 0:
@@ -92,11 +94,9 @@ project = sys.argv[1]
 with open('bugid-list.json', 'r') as rfh:
     id_list = json.load(rfh)
 
-start = False
+start = True
 
 for bug_id in id_list[project]:
-    if bug_id == '8100228':
-        start = True
     if start:
         logger.info(f'{project} {bug_id} start')
         run(project, str(bug_id))

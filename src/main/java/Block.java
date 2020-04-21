@@ -61,7 +61,8 @@ public class Block {
         SootMethod method = invokeExpr.getMethod();
         SootClass claz = method.getDeclaringClass();
         if(claz.getPackageName().equals(packageName)){
-            if(!ExtendCFGList.IsMethodExist(method.getName())){
+            String name = method.getDeclaringClass() + ":" + method.getName();
+            if(!ExtendCFGList.IsMethodExist(name)){
                 if(method.hasActiveBody()) {
                     MethodUtils.process_method(method.getActiveBody());
                 } else {
