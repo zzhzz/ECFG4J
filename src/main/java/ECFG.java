@@ -22,12 +22,14 @@ public class ECFG {
 
     @Expose
     String method_name;
+    
+    private int beginLine;
 
-    ECFG(String packageName, String class_name, String method_name){
+    ECFG(String packageName, String class_name, String method_name, int beginLine){
         entry = new Stmt(0, null);
         exit = new Stmt(1, null);
-        ENTRY = new Block(0);
-        EXIT = new Block(1);
+        ENTRY = new Block(0, beginLine);
+        EXIT = new Block(1, beginLine+1);
         stmts.add(entry);
         stmts.add(exit);
         blocks.add(ENTRY);
@@ -35,6 +37,7 @@ public class ECFG {
         this.class_name = class_name;
         this.method_name = method_name;
         this.packageName = packageName;
+        this.beginLine = beginLine;
     }
 
     void linkEntry(Integer x){
@@ -94,7 +97,7 @@ public class ECFG {
         }
         for(int i = 2; i < stmts.size(); i++){
             if(index[i] == -1){
-                Block block = new Block(blocks.size());
+                Block block = new Block(blocks.size(), this.beginLine);
                 block.setPackageName(packageName);
                 compress(i, g, block, index);
                 blocks.add(block);

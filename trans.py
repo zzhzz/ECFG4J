@@ -94,13 +94,16 @@ project = sys.argv[1]
 with open('bugid-list.json', 'r') as rfh:
     id_list = json.load(rfh)
 
-start = True
+start = False
 
 for bug_id in id_list[project]:
+    if bug_id == '3000470':
+        start = True
     if start:
         logger.info(f'{project} {bug_id} start')
         run(project, str(bug_id))
         logger.info(f'{project} {bug_id} complete') 
+        quit()
         
 
 

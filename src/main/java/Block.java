@@ -33,13 +33,16 @@ public class Block {
     @Expose
     Integer ID;
 
+    private int beginLine;
+
     private ASTNode root;
     private String packageName;
 
-    Block(Integer ID){
+    Block(Integer ID, int beginLine){
         this.ID = ID;
         this.begin = 1000000000;
         this.end = -1;
+        this.beginLine = beginLine;
         root = new ASTNode("CompoundStmt");
     }
 
@@ -49,8 +52,11 @@ public class Block {
 
     void addUnit(Unit u){
         unitList.add(u);
-        begin = Math.min(begin, u.getJavaSourceStartLineNumber());
-        end = Math.max(end, u.getJavaSourceStartLineNumber());
+        System.out.println(begin);
+        System.out.println(end);
+        int lineno = Math.max(this.beginLine, u.getJavaSourceStartLineNumber());
+        begin = Math.min(begin, lineno);
+        end = Math.max(end, lineno);
     }
 
     Integer size(){

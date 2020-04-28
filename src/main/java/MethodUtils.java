@@ -15,8 +15,9 @@ public class MethodUtils {
         String packageName = body.getMethod().getDeclaringClass().getPackageName();
         String method_name = body.getMethod().getDeclaringClass() + ":" + body.getMethod().getName();
         String class_name = body.getMethod().getDeclaringClass().getName();
+        int beginLine = body.getMethod().getJavaSourceStartLineNumber();
         UnitGraph graph = new ExceptionalUnitGraph(body);
-        ECFG ecfg = new ECFG(packageName, class_name, method_name);
+        ECFG ecfg = new ECFG(packageName, class_name, method_name, beginLine);
         ExtendCFGList.getInstance().registerMethod(method_name);
         for (Unit u : graph) {
             ecfg.appendUnit(u);
