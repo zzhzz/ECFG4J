@@ -1,15 +1,9 @@
 import org.javatuples.Pair;
-import org.javatuples.Triplet;
 import soot.*;
-import soot.Main;
-import soot.options.Options;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static soot.Scene.v;
-
 
 public class ProgramTransformer extends SceneTransformer {
 
@@ -21,12 +15,16 @@ public class ProgramTransformer extends SceneTransformer {
             ExtendCFGList.getInstance().clear();
             String class_name = dataItem.getValue0();
             String method_name = dataItem.getValue1();
+            Boolean flag = false;
+            if(method_name.equals("*")){
+                flag = true;
+            }
             System.out.println("Process of " + class_name);
             SootClass claz = Scene.v().getSootClass(class_name);
             Iterator<SootMethod> sootMethodIterator = claz.methodIterator();
             while (sootMethodIterator.hasNext()) {
                 SootMethod method = sootMethodIterator.next();
-                if (!method.getName().equals(method_name)){
+                if (!flag && !method.getName().equals(method_name)){
                     continue;
                 }
                 if (method.hasActiveBody()) {

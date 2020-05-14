@@ -1,13 +1,7 @@
 import com.google.gson.annotations.Expose;
-import fj.Hash;
 import org.javatuples.Pair;
-import polyglot.ast.NewArray;
 import soot.*;
 import soot.jimple.*;
-import soot.jimple.Stmt;
-import soot.jimple.internal.*;
-import soot.toolkits.graph.ExceptionalUnitGraph;
-import soot.toolkits.graph.UnitGraph;
 
 import java.util.*;
 import java.lang.*;
@@ -52,8 +46,6 @@ public class Block {
 
     void addUnit(Unit u){
         unitList.add(u);
-        System.out.println(begin);
-        System.out.println(end);
         int lineno = Math.max(this.beginLine, u.getJavaSourceStartLineNumber());
         begin = Math.min(begin, lineno);
         end = Math.max(end, lineno);
